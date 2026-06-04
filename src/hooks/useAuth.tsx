@@ -21,58 +21,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check for existing session on mount
   useEffect(() => {
     const initSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      
-      if (data.session) {
-        setSession(data.session);
-        setUser(data.session.user);
+      try {
+        const { data } = await supabase.auth.getSession();
+
+        if (data.session) {
+          setSession(data.session);
+          setUser(data.session.user);
+        }
+      } catch (error) {
+        console.error("Session init error:", error);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     initSession();
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error, data } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
+    try {
+      const { error, data } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
         },
-      },
-    });
-    
-    if (!error && data.user) {
-      setUser(data.user);
-      const { data: sessionData } = await supabase.auth.getSession();
-      setSession(sessionData.session);
+      });
+
+      if (!error && data.user) {
+        setUser(data.user);
+        const { data: sessionData } = await supabase.auth.getSession();
+        setSession(sessionData.session);
+      }
+
+      return { error };
+    } catch (error) {
+      console.error("Supabase signUp error:", error);
+      return { error: error as Error };
     }
-    
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    if (!error && data.user) {
-      setUser(data.user);
-      const { data: sessionData } = await supabase.auth.getSession();
-      setSession(sessionData.session);
+    try {
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!error && data.user) {
+        setUser(data.user);
+        const { data: sessionData } = await supabase.auth.getSession();
+        setSession(sessionData.session);
+      }
+
+      return { error };
+    } catch (error) {
+      console.error("Supabase signIn error:", error);
+      return { error: error as Error };
     }
-    
-    return { error };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    } finally {
+      setUser(null);
+      setSession(null);
+    }
   };
 
   return (

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
-import { ArrowLeft, LogOut, Save, MessageSquare, Star, Lock } from "lucide-react";
+import { ArrowLeft, LogOut, Save, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
@@ -43,9 +43,7 @@ export default function Profile() {
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || "");
   const [budgetAmount, setBudgetAmount] = useState("");
   const [savingsTarget, setSavingsTarget] = useState("");
-  const [fbSubject, setFbSubject] = useState("");
-  const [fbMessage, setFbMessage] = useState("");
-  const [fbRating, setFbRating] = useState(5);
+
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [pinLoading, setPinLoading] = useState(false);
@@ -167,39 +165,7 @@ export default function Profile() {
     }
   };
 
-  const submitFeedback = async () => {
-    if (!fbSubject.trim() || !fbMessage.trim()) {
-      toast.error("Fill subject and message");
-      return;
-    }
 
-    try {
-      if (!user?.id) {
-        toast.error("User not found");
-        return;
-      }
-
-      const { error } = await supabase.from("feedback").insert({
-        user_id: user.id,
-        subject: fbSubject.trim(),
-        message: fbMessage.trim(),
-        rating: fbRating,
-      });
-
-      if (error) {
-        toast.error(error.message || "Failed to submit feedback");
-        return;
-      }
-
-      toast.success("Feedback submitted! Thank you!");
-      setFbSubject("");
-      setFbMessage("");
-      setFbRating(5);
-    } catch (err) {
-      console.error("Feedback error:", err);
-      toast.error("An error occurred");
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -303,34 +269,7 @@ export default function Profile() {
           </button>
         </div>
 
-        {/* Feedback */}
-        <div className="glass-card p-4 rounded-2xl space-y-3">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-gold" />
-            <h2 className="text-sm font-semibold">Feedback</h2>
-          </div>
-          <input
-            type="text" value={fbSubject} onChange={(e) => setFbSubject(e.target.value)}
-            placeholder="Subject"
-            className="w-full glass-card px-3 py-2.5 rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-          <textarea
-            value={fbMessage} onChange={(e) => setFbMessage(e.target.value)}
-            placeholder="Your feedback..."
-            rows={3}
-            className="w-full glass-card px-3 py-2.5 rounded-xl text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-          />
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((r) => (
-              <button key={r} onClick={() => setFbRating(r)}>
-                <Star className={`h-5 w-5 transition-colors ${r <= fbRating ? "text-gold fill-current" : "text-muted-foreground"}`} />
-              </button>
-            ))}
-          </div>
-          <button onClick={submitFeedback} className="w-full glass-card text-foreground font-medium py-2.5 rounded-xl active:scale-[0.97] transition-transform border border-border/50">
-            Submit Feedback
-          </button>
-        </div>
+
 
         {/* Sign Out */}
         <button

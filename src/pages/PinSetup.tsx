@@ -33,10 +33,9 @@ export default function PinSetup() {
         return;
       }
 
-      // Call the Supabase RPC function to set PIN
-      const { error } = await (supabase.rpc('set_user_pin_on_signup', {
+      const { error } = await (supabase.rpc("set_user_pin_on_signup", {
         p_user_id: user.id,
-        p_pin_code: pin
+        p_pin_code: pin,
       }) as any);
 
       if (error) {

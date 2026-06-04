@@ -28,12 +28,11 @@ export default function PinLogin() {
         return;
       }
 
-      // Verify PIN using Supabase RPC
       const { data, error } = await (supabase.rpc(
-        'verify_user_pin',
+        "verify_user_pin",
         {
           user_email: user.email!,
-          pin_input: pin
+          pin_input: pin,
         }
       ) as any);
 
@@ -109,3 +108,4 @@ export default function PinLogin() {
     </div>
   );
 }
+
